@@ -26,13 +26,18 @@ nvim2juliarepl
 It will run Neovim to find out what colour each highlight group is set to in your configuration, and generate the appropriate TOML file so that you can use it in your REPL.
 You can use `nvim2juliarepl -h` to see all options.
 
-**Note:** Neovim, especially with tree-sitter installed, has many more syntax highlighting groups than Julia's REPL.
-For example, tree-sitter will define extra syntax groups for things like built-in types, etc., but there is no way to identify and highlight these specifically in the REPL.
-So this is really a best-effort attempt to reproduce your colorscheme.
-It won't be perfect.
-However, it should be good enough for a first pass.
-You can always tweak the generated TOML yourself if you want.
-Improvements to this are very welcome!
+> [!NOTE]
+> Neovim, especially with tree-sitter installed, has many more syntax highlighting groups than Julia's REPL.
+> For example, tree-sitter will define extra syntax groups for things like built-in types, etc., but there is no way to identify and highlight these specifically in the REPL.
+> So this is really a best-effort attempt to reproduce your colorscheme.
+> It won't be perfect.
+> However, it should be good enough for a first pass.
+> You can always tweak the generated TOML yourself if you want.
+> Improvements to this are very welcome!
+
+Oh, there's one more bit of opinionated input that I inserted into the generated TOML.
+I got rid of the default solid-red background for errors, since it makes code quite hard to read.
+It's replaced with a red underline.
 
 ## Examples
 

@@ -31,15 +31,20 @@ For example, tree-sitter will define extra syntax groups for things like built-i
 So this is really a best-effort attempt to reproduce your colorscheme.
 It won't be perfect.
 However, it should be good enough for a first pass.
+You can always tweak the generated TOML yourself if you want.
 Improvements to this are very welcome!
 
-## Example
+## Examples
 
 In the screenshot below, the left side is my Neovim, and the right side is the Julia REPL.
 
 <img width="1467" height="425" alt="comparison" src="https://github.com/user-attachments/assets/174431a3-e877-4781-ae5f-cecf76345206" />
 
 (If you're wondering what my colorscheme is, it's [mostly Edge with some personal modifications that I like](https://github.com/penelopeysm/edge).)
+
+And here is an example of [Catppuccin Latte](https://catppuccin.com/):
+
+<img width="1467" height="422" alt="comparison-latte" src="https://github.com/user-attachments/assets/25dd9f76-ad11-4080-b74a-c975ef0eaa3c" />
 
 Here is the code in the example if you want to use it for your own side-by-side comparison:
 

@@ -103,8 +103,20 @@ Base.:(==)(a::Hl, b::Hl) = a.fg == b.fg && a.bg == b.bg && a.attrs == b.attrs
 # Environment variables used to pass data into the headless nvim session
 const ENV_GROUPS = "NVIM2JULIAREPL_GROUPS"  # comma-separated highlight group names
 const ENV_OUT = "NVIM2JULIAREPL_OUT"        # path nvim should write its results to
+const ENV_COLORSCHEME = "NVIM2JULIAREPL_COLORSCHEME"  # optional colorscheme to activate first
 
 const NVIM_LUA = """
+-- Switch colorscheme from Lua rather than via `-c colorscheme NAME`: a failed
+-- `-c` command only prints an error and nvim carries on with exit code 0, so
+-- we would silently query the config's own colorscheme instead.
+local cs = vim.env.$ENV_COLORSCHEME
+if cs and cs ~= "" then
+  local ok, err = pcall(vim.cmd.colorscheme, cs)
+  if not ok then
+    io.stderr:write("error: " .. tostring(err) .. "\\n")
+    vim.cmd("cquit! 1")
+  end
+end
 local groups = vim.fn.split(vim.env.$ENV_GROUPS, ",")
 local out = {}
 for _, name in ipairs(groups) do
@@ -129,20 +141,17 @@ function query_nvim(groups::Vector{String}; colorscheme::Union{Nothing,String}=n
         luafile = joinpath(dir, "query.lua")
         outfile = joinpath(dir, "out.tsv")
         write(luafile, NVIM_LUA)
-        cmds = String[]
-        colorscheme === nothing || push!(cmds, "colorscheme $colorscheme")
-        push!(cmds, "luafile $luafile")
         # Note: headless nvim still loads the user's init.lua/init.vim, so the
         # active colorscheme and treesitter setup are in effect.
-        args = String["nvim", "--headless"]
-        for c in cmds
-            push!(args, "-c", c)
-        end
+        args = String["nvim", "--headless", "-c", "luafile $luafile"]
         env = copy(ENV)
         env[ENV_GROUPS] = join(groups, ",")
         env[ENV_OUT] = outfile
+        colorscheme === nothing || (env[ENV_COLORSCHEME] = colorscheme)
         cmd = setenv(Cmd(args), env)
-        run(pipeline(cmd; stdin=devnull, stdout=devnull, stderr=stderr))
+        proc = run(pipeline(cmd; stdin=devnull, stdout=devnull, stderr=stderr); wait=false)
+        wait(proc)
+        success(proc) || error("nvim exited with status $(proc.exitcode); nothing written")
         isfile(outfile) || error("nvim did not produce output; check that your config loads headlessly")
         result = Dict{String,Hl}()
         for line in eachline(outfile)
@@ -286,11 +295,10 @@ usage: nvim2juliarepl [options]
 
 Convert your Neovim colorscheme into a Julia REPL syntax highlighting theme.
 
-Starts a headless Neovim (which loads your normal config and colorscheme),
-reads the colors of highlight groups such as `@keyword` and `@string`, maps them
-onto the `julia_*` faces used by the Julia 1.13+ REPL, and writes them to a
-StyledStrings `faces.toml`. The treesitter plugin is not required: Neovim
-defines these groups itself.
+Starts a headless Neovim (which loads your normal config and colorscheme), reads
+the colors of highlight groups such as `@keyword` and `@string`, maps them onto
+the `julia_*` faces used by the Julia 1.13+ REPL, and writes them to a
+StyledStrings `faces.toml` that your REPL will pick up.
 
 Options:
   -o, --output PATH       Where to write the faces file.
@@ -357,6 +365,17 @@ function run_cli(args)
 end
 
 # `julia -m NvimToREPLColor [args]`
-(@main)(args) = (run_cli(args); 0)
+function (@main)(args)
+    try
+        run_cli(args)
+    catch e
+        # Expected failures (nvim errors, bad config) get a one-line message
+        # rather than a stacktrace; anything else is a bug, so rethrow.
+        e isa ErrorException || rethrow()
+        println(stderr, "error: ", e.msg)
+        return 1
+    end
+    return 0
+end
 
 end # module NvimToREPLColor

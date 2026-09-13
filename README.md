@@ -43,13 +43,13 @@ It's replaced with a red underline.
 
 In the screenshot below, the left side is my Neovim, and the right side is the Julia REPL.
 
-<img width="1467" height="425" alt="comparison" src="https://github.com/user-attachments/assets/174431a3-e877-4781-ae5f-cecf76345206" />
+<img width="1467" height="425" alt="Image" src="https://github.com/user-attachments/assets/b1e0147c-ec04-4bdd-b1f9-03da32cadad1" />
 
 (If you're wondering what my colorscheme is, it's [mostly Edge with some personal modifications that I like](https://github.com/penelopeysm/edge).)
 
 And here is an example of [Catppuccin Latte](https://catppuccin.com/):
 
-<img width="1467" height="422" alt="comparison-latte" src="https://github.com/user-attachments/assets/25dd9f76-ad11-4080-b74a-c975ef0eaa3c" />
+<img width="1467" height="422" alt="Image" src="https://github.com/user-attachments/assets/052b5e35-d8f4-4f2f-a3d0-c0f1bfc374b5" />
 
 Here is the code in the example if you want to use it for your own side-by-side comparison:
 
